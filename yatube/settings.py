@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-
+import fnmatch
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -25,7 +25,14 @@ SECRET_KEY = 'u8(9us(vn37n#&m+!&udo=*5*cq%9ei7yj@us!+7gt10*bh-%f'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+        "*",
+        "localhost",
+        "127.0.0.1",
+        "[::1]",
+        "testserver",
+        ".ngrok.io"
+]
 
 #  подключаем движок filebased.EmailBackend
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
@@ -39,12 +46,14 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'users',
     'posts',
+    'sorl.thumbnail',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "debug_toolbar"
 ]
 SITE_ID = 1
 MIDDLEWARE = [
@@ -55,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+     "debug_toolbar.middleware.DebugToolbarMiddleware"
 ]
 
 ROOT_URLCONF = 'yatube.urls'
@@ -141,3 +151,24 @@ STATIC_URL = "/static/"
 
 # задаём адрес директории, куда командой *collectstatic* будет собрана вся статика
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
+def get_ngrok_origins():
+    return [f"https://{h}" for h in ALLOWED_HOSTS if fnmatch.fnmatch(h, ".ngrok.io")]
+
+CSRF_TRUSTED_ORIGINS = ["https://bc1c-104-238-213-60.ngrok-free.app"]
+
+FLATPAGES_ROOT = os.path.join(BASE_DIR, "templates", "flatpages")
+FLATPAGES_URL = "/about/"
